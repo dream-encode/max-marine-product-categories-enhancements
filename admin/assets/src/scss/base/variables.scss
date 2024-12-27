@@ -1,0 +1,12 @@
+:root {
+	--mmpce-modal-background-color: #ffffff;
+
+	--mmpce-progress-circle-current-color: rgba(0, 124, 186);
+	--mmpce-progress-circle-complete-color: rgba(0, 124, 186, 0.3);
+	--mmpce-progress-circle-unfinished-color: #ffffff;
+
+	--mmpce-dimensions-piece-number-color: #999999;
+
+	--mmpce-animated-svg-checkmark-curve: cubic-bezier( 0.650, 0.000, 0.450, 1.000 );
+	--mmpce-animated-svg-checkmark-color: #4CAF50;
+}
