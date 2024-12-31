@@ -152,6 +152,10 @@ const admin = {
 			'./admin/assets/src/js/admin-settings-page.js',
 			'./admin/assets/src/scss/admin-settings-page.scss'
 		],
+		'admin-edit-product-page': [
+			'./admin/assets/src/js/admin-edit-product-page.js',
+			'./admin/assets/src/scss/admin-edit-product-page.scss'
+		],
 	},
 	output: {
 		filename: 'js/[name].min.js',

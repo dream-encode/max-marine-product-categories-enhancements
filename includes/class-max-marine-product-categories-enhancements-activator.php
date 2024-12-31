@@ -33,6 +33,5 @@ class Max_Marine_Product_Categories_Enhancements_Activator {
 	 * @return void
 	 */
 	public static function activate() {
-		Max_Marine_Product_Categories_Enhancements_Upgrader::install();
 	}
 }

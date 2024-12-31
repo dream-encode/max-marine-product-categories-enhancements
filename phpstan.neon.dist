@@ -20,8 +20,3 @@ parameters:
         - %rootDir%/../../php-stubs/wordpress-stubs/wordpress-stubs.php
         - %rootDir%/../../php-stubs/woocommerce-stubs/woocommerce-stubs.php
         - %rootDir%/../../php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php
-    ignoreErrors:
-        -
-            message: '#Variable \$[a-zA-Z0-9\\_]+ might not be defined#'
-            paths:
-                - admin/partials/*

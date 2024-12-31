@@ -76,12 +76,9 @@ class Max_Marine_Product_Categories_Enhancements {
 		$this->plugin_name = 'max-marine-product-categories-enhancements';
 
 		$this->load_dependencies();
-		$this->define_tables();
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-		$this->define_global_hooks();
-		$this->define_cli_commands();
 	}
 
 	/**
@@ -107,16 +104,7 @@ class Max_Marine_Product_Categories_Enhancements {
 		 */
 		require_once MAX_MARINE_PRODUCT_CATEGORIES_ENHANCEMENTS_PLUGIN_PATH . 'includes/abstracts/abstract-wc-logger.php';
 		require_once MAX_MARINE_PRODUCT_CATEGORIES_ENHANCEMENTS_PLUGIN_PATH . 'includes/log/class-max-marine-product-categories-enhancements-wc-logger.php';
-		
-		/**
-		 * Action Scheduler
-		 */
-		require_once MAX_MARINE_PRODUCT_CATEGORIES_ENHANCEMENTS_PLUGIN_PATH . 'libraries/action-scheduler/action-scheduler.php';
-		/**
-		 * Upgrader.
-		 */
-		require_once MAX_MARINE_PRODUCT_CATEGORIES_ENHANCEMENTS_PLUGIN_PATH . 'includes/upgrade/class-max-marine-product-categories-enhancements-upgrader.php';
-		
+
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
@@ -130,11 +118,6 @@ class Max_Marine_Product_Categories_Enhancements {
 		require_once MAX_MARINE_PRODUCT_CATEGORIES_ENHANCEMENTS_PLUGIN_PATH . 'includes/class-max-marine-product-categories-enhancements-i18n.php';
 
 		/**
-		 * Default filters.
-		 */
-		require_once MAX_MARINE_PRODUCT_CATEGORIES_ENHANCEMENTS_PLUGIN_PATH . 'includes/max-marine-product-categories-enhancements-default-filters.php';
-
-		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once MAX_MARINE_PRODUCT_CATEGORIES_ENHANCEMENTS_PLUGIN_PATH . 'admin/class-max-marine-product-categories-enhancements-admin.php';
@@ -144,13 +127,7 @@ class Max_Marine_Product_Categories_Enhancements {
 		 * side of the site.
 		 */
 		require_once MAX_MARINE_PRODUCT_CATEGORIES_ENHANCEMENTS_PLUGIN_PATH . 'public/class-max-marine-product-categories-enhancements-public.php';
-		Max_Marine_Product_Categories_Enhancements_Upgrader::init();
-		/**
-		 * If this is a WP_CLI request, include the commands.
-		 */
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			include_once MAX_MARINE_PRODUCT_CATEGORIES_ENHANCEMENTS_PLUGIN_PATH . 'includes/cli/class-max-marine-product-categories-enhancements-cli-commands.php';
-		}
+
 		$this->loader = new Max_Marine_Product_Categories_Enhancements_Loader();
 	}
 
@@ -171,20 +148,6 @@ class Max_Marine_Product_Categories_Enhancements {
 	}
 
 	/**
-	 * Define custom databases tables.
-	 *
-	 * @since  1.0.0
-	 * @return void
-	 */
-	public function define_tables() {
-		if ( ! class_exists( 'Max_Marine_Product_Categories_Enhancements_Upgrader' ) ) {
-			return;
-		}
-
-		Max_Marine_Product_Categories_Enhancements_Upgrader::define_tables();
-	}
-
-	/**
 	 * Register all of the hooks related to the admin area functionality
 	 * of the plugin.
 	 *
@@ -196,6 +159,9 @@ class Max_Marine_Product_Categories_Enhancements {
 		$plugin_admin = new Max_Marine_Product_Categories_Enhancements_Admin();
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
+		$this->loader->add_filter( 'admin_head', $plugin_admin, 'restrict_add_category_admin_page' );
+		$this->loader->add_filter( 'user_has_cap', $plugin_admin, 'restrict_edit_terms_for_product_cat', 10, 4 );
+		$this->loader->add_filter( 'get_terms', $plugin_admin, 'hide_legacy_categories_from_product_checklist', 10, 3 );
 	}
 
 	/**
@@ -208,34 +174,6 @@ class Max_Marine_Product_Categories_Enhancements {
 	 */
 	private function define_public_hooks() {
 		$plugin_public = new Max_Marine_Product_Categories_Enhancements_Public();
-
-		$this->loader->add_action( 'example_function', $plugin_public, 'example_function' );
-		$this->loader->add_action( 'upgrader_process_complete', $plugin_public, 'upgrader_process_complete', 10, 2 );
-
-		$this->loader->add_action( 'max_marine_product_categories_enhancements_process_plugin_upgrade', $plugin_public, 'process_plugin_upgrade', 10, 2 );
-		
-	}
-
-	/**
-	 * Register all of the global hooks .
-	 *
-	 * @since  1.0.0
-	 * @access private
-	 * @return void
-	 */
-	private function define_global_hooks() {
-	}
-
-	/**
-	 * Register custom WP_Cli commands.
-	 *
-	 * @since  1.0.0
-	 * @return void
-	 */
-	private function define_cli_commands() {
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			\WP_CLI::add_command( 'mmpce', 'Max_Marine\Product_Categories_Enhancements\Core\CLI\Max_Marine_Product_Categories_Enhancements_CLI_Commands' );
-		}
 	}
 
 	/**
