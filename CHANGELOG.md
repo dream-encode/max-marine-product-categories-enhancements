@@ -1,4 +1,10 @@
 # Changelog
 
+## [1.1.0] - 2025-01-02
+* ENH: Abstract out max_marine_product_categories_enhancements_get_legacy_categories_ids.
+* ENH: New function max_marine_product_categories_enhancements_filter_legacy_categories_from_term_ids.
+* ENH: New function max_marine_product_categories_enhancements_filter_legacy_categories_from_terms.
+* ENH: Remove edit term caps from non admin users for the `product_cat` taxonomy.
+
 ## [1.0.0] - 2024-12-31
 * Initial release.
