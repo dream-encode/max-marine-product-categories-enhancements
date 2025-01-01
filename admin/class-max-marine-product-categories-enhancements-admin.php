@@ -119,85 +119,13 @@ class Max_Marine_Product_Categories_Enhancements_Admin {
 	}
 
 	/**
-	 * Restrict the edit_terms capability for the `product_cat` taxonomy to administrators only.
-	 *
-	 * This function dynamically modifies the user's capabilities at runtime to prevent
-	 * non-administrator users from editing, adding, or deleting terms in the `product_cat` taxonomy.
-	 *
-	 * @since  1.0.0
-	 * @param  array    $allcaps  An array of all the capabilities for the user.
-	 * @param  array    $cap      The specific capability being checked.
-	 * @param  array    $args     Additional arguments passed to the capability check.
-	 * @param  WP_User  $user     The WP_User object for the current user.
-	 * @return array
-	 */
-	public function restrict_edit_terms_for_product_cat( $allcaps, $cap, $args, $user ) {
-		if ( ! $user instanceof WP_User ) {
-			return $allcaps;
-		}
-
-		if ( isset( $args[0] ) && 'edit_terms' === $args[0] && isset( $args[2] ) && 'product_cat' === $args[2] ) {
-			if ( ! user_can( $user, 'administrator' ) ) {
-				$allcaps[ $cap[0] ] = false;
-			}
-		}
-
-		return $allcaps;
-	}
-
-	/**
-	 * Hide ability to create new category for non-admins on various pages.
-	 *
-	 * @since  1.0.0
-	 * @return void
-	 */
-	public function restrict_add_category_admin_page() {
-		$current_screen = get_current_screen();
-
-		if ( ! $current_screen instanceof WP_Screen || current_user_can( 'administrator' ) ) {
-			return;
-		}
-
-		switch ( $current_screen->id ) {
-			case 'edit-product_cat':
-				?>
-
-				<style>
-					#col-left:has( #addtag ) {
-						display: none;
-					}
-
-					#col-right {
-						float: none;
-						width: 100%;
-					}
-				</style>
-
-				<?php
-				break;
-
-			case 'product':
-				?>
-
-				<style>
-					#product_cat-adder {
-						display: none;
-					}
-				</style>
-
-				<?php
-				break;
-		}
-	}
-
-	/**
 	 * Hide terms with meta `_mm_is_legacy_category` equal to 1 from wp_terms_checklist on the edit product screen.
 	 *
 	 * This function filters the terms retrieved for the wp_terms_checklist and removes
 	 * any term that has `_mm_is_legacy_category` meta set to 1, but only on the edit product screen.
 	 *
 	 * @since  1.0.0
-	 * @global object  $wpdb        Global WordPress Core database instance.
+	 * @global string  $typenow     Current post type global.
 	 * @param  array   $terms       Array of term objects being displayed in the checklist.
 	 * @param  array   $taxonomies  Array of taxonomy names.
 	 * @param  array   $args        Arguments passed to wp_terms_checklist.
@@ -219,46 +147,40 @@ class Max_Marine_Product_Categories_Enhancements_Admin {
 			return $terms;
 		}
 
-		$legacy_category_ids = get_transient( 'mmpce_legacy_category_ids' );
+		global $typenow;
 
-		// If not cached, query the database and cache it.
-		if ( false === $legacy_category_ids ) {
-			$categories_terms_args = array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => false,
-				'number'     => 0,
-				'fields'     => 'ids',
-				'update_term_meta_cache' => false,
-				'meta_query' => array(
-					array(
-						'key'     => '_mm_is_legacy_category',
-						'compare' => 'EXISTS',
-					),
-				),
-			);
-
-			$categories_terms_query = new WP_Term_Query( $categories_terms_args );
-
-			$legacy_category_ids = $categories_terms_query->get_terms();
-
-			set_transient( 'mmpce_legacy_category_ids', $legacy_category_ids, DAY_IN_SECONDS );
-		}
-
-		if ( ! $legacy_category_ids || count( $legacy_category_ids ) < 1 ) {
+		if ( empty( $typenow ) || 'product' !== $typenow ) {
 			return $terms;
 		}
 
-		$filtered_terms = array_filter(
-			$terms,
-			function ( $term ) use ( $legacy_category_ids ) {
-				if ( ! $term instanceof WP_Term ) {
-					return false;
-				}
+		return max_marine_product_categories_enhancements_filter_legacy_categories_from_terms( $terms );
+	}
 
-				return ! in_array( $term->term_id, $legacy_category_ids );
-			}
-		);
+	/**
+	 * Remove old categories when a product is duplicated.
+	 *
+	 * @since  1.1.0
+	 * @param  WC_Product  $duplicated_product  Product duplicate.
+	 * @return void
+	 */
+	public function woocommerce_product_duplicate( $duplicated_product ) {
+		if ( is_numeric( $product ) ) {
+			$product = wc_get_product( $product );
+		}
 
-		return $filtered_terms;
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+
+		$current_category_ids = $product->get_category_ids();
+
+		if ( count( $current_category_ids ) < 1 ) {
+			return;
+		}
+
+		$filtered_category_ids = max_marine_product_categories_enhancements_filter_legacy_categories_from_term_ids( $current_category_ids );
+
+		$product->set_category_ids( $filtered_category_ids );
+		$product->save();
 	}
 }

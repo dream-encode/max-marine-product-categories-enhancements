@@ -170,3 +170,115 @@ function max_marine_product_categories_enhancements_admin_screen_enqueued_assets
 function max_marine_product_categories_enhancements_admin_screen_has_enqueued_assets( $screen ) {
 	return count( max_marine_product_categories_enhancements_admin_screen_enqueued_assets( $screen ) );
 }
+
+/**
+ * Get an array of "legacy' categories.
+ *
+ * @since  1.0.0
+ * @param  bool  $cached  Optional. Whether to use cached results. Default false.
+ * @return false|int[]
+ */
+function max_marine_product_categories_enhancements_get_legacy_categories_ids( $cached = false ) {
+	do_action( 'qm/start', 'mmpce_get_legacy_category_ids' );
+
+	static $legacy_category_ids;
+
+	if ( ! $legacy_category_ids ) {
+		$legacy_category_ids = $cached ? get_transient( 'mmpce_legacy_category_ids' ) : false;
+
+		// If not cached, query the database and cache it.
+		if ( false === $legacy_category_ids ) {
+			$categories_terms_args = array(
+				'taxonomy'               => 'product_cat',
+				'hide_empty'             => false,
+				'number'                 => 0,
+				'fields'                 => 'ids',
+				'update_term_meta_cache' => false,
+				'meta_query'             => array(
+					array(
+						'key'     => '_mm_is_legacy_category',
+						'compare' => 'EXISTS',
+					),
+				),
+			);
+
+			$categories_terms_query = new WP_Term_Query( $categories_terms_args );
+
+			$legacy_category_ids = $categories_terms_query->get_terms();
+
+			if ( empty( $legacy_category_ids ) ) {
+				return false;
+			}
+
+			set_transient( 'mmpce_legacy_category_ids', $legacy_category_ids, YEAR_IN_SECONDS );
+		}
+	}
+
+	do_action( 'qm/stop', 'mmpce_get_legacy_category_ids' );
+
+	return $legacy_category_ids;
+}
+
+/**
+ * Given an array of term IDs(product categories), filter out any "legacy' categories.
+ *
+ * @since  1.0.0
+ * @param  int[]  $terms  Array of term IDs.
+ * @return int[]
+ */
+function max_marine_product_categories_enhancements_filter_legacy_categories_from_term_ids( $term_ids ) {
+	do_action( 'qm/start', 'foo' );
+
+	$legacy_category_ids = max_marine_product_categories_enhancements_get_legacy_categories_ids();
+
+	if ( ! $legacy_category_ids || count( $legacy_category_ids ) < 1 ) {
+		return $term_ids;
+	}
+
+	$filtered_terms = array_filter(
+		$term_ids,
+		function ( $term_id ) use ( $legacy_category_ids ) {
+			if ( ! is_int( $term_id ) ) {
+				return false;
+			}
+
+			return ! in_array( $term_id, $legacy_category_ids );
+		}
+	);
+
+	do_action( 'qm/stop', 'foo' );
+
+	return $filtered_terms;
+}
+
+/**
+ * Given an array of terms(product categories), filter out any "legacy' categories.
+ *
+ * @since  1.0.0
+ * @param  WP_Term[]  $terms  Array of terms.
+ * @return WP_Term[]
+ */
+function max_marine_product_categories_enhancements_filter_legacy_categories_from_terms( $terms ) {
+	do_action( 'qm/start', 'foo' );
+
+	$legacy_category_ids = max_marine_product_categories_enhancements_get_legacy_categories_ids();
+
+	if ( ! $legacy_category_ids || count( $legacy_category_ids ) < 1 ) {
+		return $terms;
+	}
+
+	$filtered_terms = array_filter(
+		$terms,
+		function ( $term ) use ( $legacy_category_ids ) {
+			if ( ! $term instanceof WP_Term ) {
+				return false;
+			}
+
+			return ! in_array( $term->term_id, $legacy_category_ids );
+		}
+	);
+
+	do_action( 'qm/stop', 'foo' );
+
+	return $filtered_terms;
+}

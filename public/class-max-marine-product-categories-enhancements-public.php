@@ -59,4 +59,20 @@ class Max_Marine_Product_Categories_Enhancements_Public {
 			)
 		);
 	}
+
+	/**
+	 * Modify capabilities for the `product_cat` taxonomy to restrict term editing to administrators.
+	 *
+	 * @since  1.1.0
+	 * @return void
+	 */
+	public function remove_edit_terms_capability_for_non_admins() {
+		$taxonomy = get_taxonomy( 'product_cat' );
+
+		if ( $taxonomy ) {
+			$taxonomy->cap->edit_terms   = 'manage_options';
+			$taxonomy->cap->delete_terms = 'manage_options';
+			$taxonomy->cap->assign_terms = 'manage_options';
+		}
+	}
 }

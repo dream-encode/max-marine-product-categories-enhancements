@@ -159,9 +159,10 @@ class Max_Marine_Product_Categories_Enhancements {
 		$plugin_admin = new Max_Marine_Product_Categories_Enhancements_Admin();
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_filter( 'admin_head', $plugin_admin, 'restrict_add_category_admin_page' );
-		$this->loader->add_filter( 'user_has_cap', $plugin_admin, 'restrict_edit_terms_for_product_cat', 10, 4 );
+
 		$this->loader->add_filter( 'get_terms', $plugin_admin, 'hide_legacy_categories_from_product_checklist', 10, 3 );
+
+		$this->loader->add_action( 'woocommerce_product_duplicate', $plugin_admin, 'woocommerce_product_duplicate', 999, 2 );
 	}
 
 	/**
@@ -174,6 +175,8 @@ class Max_Marine_Product_Categories_Enhancements {
 	 */
 	private function define_public_hooks() {
 		$plugin_public = new Max_Marine_Product_Categories_Enhancements_Public();
+
+		$this->loader->add_filter( 'init', $plugin_public, 'remove_edit_terms_capability_for_non_admins', 99 );
 	}
 
 	/**
