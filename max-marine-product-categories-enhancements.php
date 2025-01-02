@@ -15,7 +15,7 @@
  * Plugin Name:       Max Marine - Product Categories Enhancements
  * Plugin URI:        https://example.com
  * Description:       A sepcialized plugin to enable customizations and enhancements to WooCommerce product categories.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            David Baumwald
  * Author URI:        https://dream-encode.com
  * License:           GPL-2.0+
