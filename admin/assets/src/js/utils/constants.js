@@ -9,3 +9,5 @@ export const LOG_LEVELS = [
 	'debug',
 	'off'
 ]
+
+export const EDIT_PRODUCT_STORE_NAME = 'max-marine-edit-product-shared-state'

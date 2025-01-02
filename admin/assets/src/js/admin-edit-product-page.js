@@ -1,11 +1,12 @@
+import {
+	createRoot
+} from '@wordpress/element'
+
 import domReady from '@wordpress/dom-ready'
 
-domReady( () => {
-	document.addEventListener( 'DOMContentLoaded', () => {
-		const addCategoryButton = document.querySelector( '.taxonomy-product_cat .add-term-toggle' )
+import EditProductPage from './components/EditProduct/EditProduct.jsx'
 
-		if ( addCategoryButton ) {
-			addCategoryButton.style.display = 'none'
-		}
-	} )
+domReady( () => {
+	const root = createRoot( document.getElementById( 'max-marine-product-categories-enhancements-edit-product' ) )
+	root.render( <EditProductPage /> )
 } )

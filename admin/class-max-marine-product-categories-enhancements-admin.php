@@ -15,6 +15,7 @@ use WP_Screen;
 use WP_Term;
 use WP_Term_Query;
 use WP_User;
+use WC_Product;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -60,7 +61,7 @@ class Max_Marine_Product_Categories_Enhancements_Admin {
 				wp_enqueue_style(
 					"max-marine-product-categories-enhancements-admin-{$asset['name']}",
 					$asset_base_url . "assets/dist/css/admin-{$asset['name']}.min.css",
-					$asset_file['dependencies'],
+					max_marine_product_categories_enhancements_get_style_asset_dependencies( $asset_file['dependencies'] ),
 					$asset_file['version'],
 					'all'
 				);
@@ -160,19 +161,19 @@ class Max_Marine_Product_Categories_Enhancements_Admin {
 	 * Remove old categories when a product is duplicated.
 	 *
 	 * @since  1.1.0
-	 * @param  WC_Product  $duplicated_product  Product duplicate.
+	 * @param  WC_Product|int  $duplicated_product  Product duplicate.
 	 * @return void
 	 */
 	public function woocommerce_product_duplicate( $duplicated_product ) {
-		if ( is_numeric( $product ) ) {
-			$product = wc_get_product( $product );
+		if ( is_numeric( $duplicated_product ) ) {
+			$duplicated_product = wc_get_product( $duplicated_product );
 		}
 
-		if ( ! $product instanceof WC_Product ) {
+		if ( ! $duplicated_product instanceof WC_Product ) {
 			return;
 		}
 
-		$current_category_ids = $product->get_category_ids();
+		$current_category_ids = $duplicated_product->get_category_ids();
 
 		if ( count( $current_category_ids ) < 1 ) {
 			return;
@@ -180,7 +181,27 @@ class Max_Marine_Product_Categories_Enhancements_Admin {
 
 		$filtered_category_ids = max_marine_product_categories_enhancements_filter_legacy_categories_from_term_ids( $current_category_ids );
 
-		$product->set_category_ids( $filtered_category_ids );
-		$product->save();
+		$duplicated_product->set_category_ids( $filtered_category_ids );
+		$duplicated_product->save();
+	}
+
+	/**
+	 * Create a root for a react mount on the edit product page.
+	 *
+	 * @since  1.1.0
+	 * @return void
+	 */
+	public function edit_product_page_react_root() {
+		$current_screen = get_current_screen();
+
+		if ( ! $current_screen instanceof WP_Screen ) {
+			return;
+		}
+
+		if ( 'product' !== $current_screen->id ) {
+			return;
+		}
+
+		echo '<div id="max-marine-product-categories-enhancements-edit-product"></div>';
 	}
 }

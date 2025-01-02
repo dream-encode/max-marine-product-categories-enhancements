@@ -179,8 +179,6 @@ function max_marine_product_categories_enhancements_admin_screen_has_enqueued_as
  * @return false|int[]
  */
 function max_marine_product_categories_enhancements_get_legacy_categories_ids( $cached = false ) {
-	do_action( 'qm/start', 'mmpce_get_legacy_category_ids' );
-
 	static $legacy_category_ids;
 
 	if ( ! $legacy_category_ids ) {
@@ -214,8 +212,6 @@ function max_marine_product_categories_enhancements_get_legacy_categories_ids( $
 		}
 	}
 
-	do_action( 'qm/stop', 'mmpce_get_legacy_category_ids' );
-
 	return $legacy_category_ids;
 }
 
@@ -223,15 +219,13 @@ function max_marine_product_categories_enhancements_get_legacy_categories_ids( $
  * Given an array of term IDs(product categories), filter out any "legacy' categories.
  *
  * @since  1.0.0
- * @param  int[]  $terms  Array of term IDs.
+ * @param  int[]  $term_ids  Array of term IDs.
  * @return int[]
  */
 function max_marine_product_categories_enhancements_filter_legacy_categories_from_term_ids( $term_ids ) {
-	do_action( 'qm/start', 'foo' );
-
 	$legacy_category_ids = max_marine_product_categories_enhancements_get_legacy_categories_ids();
 
-	if ( ! $legacy_category_ids || count( $legacy_category_ids ) < 1 ) {
+	if ( ! $legacy_category_ids ) {
 		return $term_ids;
 	}
 
@@ -246,8 +240,6 @@ function max_marine_product_categories_enhancements_filter_legacy_categories_fro
 		}
 	);
 
-	do_action( 'qm/stop', 'foo' );
-
 	return $filtered_terms;
 }
 
@@ -259,11 +251,9 @@ function max_marine_product_categories_enhancements_filter_legacy_categories_fro
  * @return WP_Term[]
  */
 function max_marine_product_categories_enhancements_filter_legacy_categories_from_terms( $terms ) {
-	do_action( 'qm/start', 'foo' );
-
 	$legacy_category_ids = max_marine_product_categories_enhancements_get_legacy_categories_ids();
 
-	if ( ! $legacy_category_ids || count( $legacy_category_ids ) < 1 ) {
+	if ( ! $legacy_category_ids ) {
 		return $terms;
 	}
 
@@ -277,8 +267,6 @@ function max_marine_product_categories_enhancements_filter_legacy_categories_fro
 			return ! in_array( $term->term_id, $legacy_category_ids );
 		}
 	);
-
-	do_action( 'qm/stop', 'foo' );
 
 	return $filtered_terms;
 }
