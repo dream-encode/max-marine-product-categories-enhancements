@@ -204,4 +204,27 @@ class Max_Marine_Product_Categories_Enhancements_Admin {
 
 		echo '<div id="max-marine-product-categories-enhancements-edit-product"></div>';
 	}
+
+	/**
+	 * Overwrite terms during bulk edit instead of appending them.
+	 *
+	 * @since  1.1.0
+	 * @param  int  $post_id  The ID of the post being updated.
+	 * @return void
+	 */
+	public function bulk_edit_terms_replace_old_terms( $post_id ) {
+		if ( ! isset( $_REQUEST['bulk_edit'] ) || empty( $_REQUEST['tax_input'] ) ) {
+			return;
+		}
+
+		$selected_terms = $_REQUEST['tax_input'];
+
+		foreach ( $selected_terms as $taxonomy => $terms ) {
+			if ( empty( $terms ) ) {
+				continue;
+			}
+
+			wp_set_post_terms( $post_id, $terms, $taxonomy );
+		}
+	}
 }

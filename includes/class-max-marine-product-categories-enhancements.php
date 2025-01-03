@@ -144,7 +144,7 @@ class Max_Marine_Product_Categories_Enhancements {
 	private function set_locale() {
 		$plugin_i18n = new Max_Marine_Product_Categories_Enhancements_I18n();
 
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
+		$this->loader->add_action( 'init', $plugin_i18n, 'load_plugin_textdomain' );
 	}
 
 	/**
@@ -166,6 +166,8 @@ class Max_Marine_Product_Categories_Enhancements {
 		$this->loader->add_action( 'woocommerce_product_duplicate', $plugin_admin, 'woocommerce_product_duplicate', 999, 2 );
 
 		$this->loader->add_action( 'edit_form_after_editor', $plugin_admin, 'edit_product_page_react_root', 999 );
+
+		$this->loader->add_action( 'save_post', $plugin_admin, 'bulk_edit_terms_replace_old_terms' );
 	}
 
 	/**
